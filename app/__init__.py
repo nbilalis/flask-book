@@ -1,6 +1,6 @@
 from os import environ
 from flask import Flask, render_template
-from models import db, User, Post
+from .models import db, User, Post
 
 from datetime import datetime, timedelta
 from random import randint, choice, sample
