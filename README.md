@@ -7,3 +7,5 @@ A minimal social wep-app using **Python** / **Flask** and **SQlite** / **SQLAlch
 1. Run `flask init-db` to initialize the database.
 1. Run `flask add-data` to add some test data.
 1. Run `flask run` to start the server
+
+After you run the app hit `/test` to view some results from DB.

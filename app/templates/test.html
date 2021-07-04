@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+</head>
+<body>
+    <h1>Test</h1>
+    <ul>
+        {% for key, data in context.items() %}
+            <li>
+                <h2>{{ key }}</h2>
+                {# List of Builtin Tests — Jinja Documentation (3.0.x) - https://tmpl.at/3qSCvLu #}
+                {% if data is iterable %}
+                    <ul>
+                        {% for datum in data  %}
+                            <li>{{ datum }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div>{{ data }}</div>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+</html>
