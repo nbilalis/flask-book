@@ -1,8 +1,6 @@
+from flask import current_app as app
 
-# from flask import current_app as app
-
-from . import app                   # from app import app
-from .models import User             # from app.models import User
+from .models import User, Post
 
 from flask import render_template
 

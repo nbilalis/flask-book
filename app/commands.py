@@ -1,7 +1,7 @@
-# from flask import current_app as app
+from flask import current_app as app
 
-from . import app, db               # from app import db
-from .models import User, Post      # from app.models import User, Post
+from . import db                # from app import db
+from .models import User, Post  # from app.models import User, Post
 
 
 from random import randint, choice, sample
