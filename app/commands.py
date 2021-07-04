@@ -34,7 +34,7 @@ def add_data():
     ts = datetime.now() - timedelta(weeks=6*4)    # .utcnow()
 
     while datetime.now() >= ts:
-        p = Post(title=sentence(), body=paragraph(), time_created=ts)
+        p = Post(title=sentence(), body=paragraph(), created_at=ts)
         u = choice(users)
         u.posts.append(p)
         ts += timedelta(microseconds=randint(1, 10**11))

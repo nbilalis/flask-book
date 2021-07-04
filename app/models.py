@@ -30,6 +30,7 @@ class User(db.Model):
     password = db.Column(db.String(50), nullable=False)
     firstname = db.Column(db.String(50), nullable=False)
     lastname = db.Column(db.String(50), nullable=False)
+    joined_at = db.Column(db.DateTime(timezone=True), server_default=func.now())    # default is handled by DB
 
     # posts = db.relationship('Post', backref=db.backref('author', cascade="all, delete"), lazy=False, passive_deletes=True)
 
@@ -51,9 +52,8 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String(100), nullable=False)
     body = db.Column(db.Text, nullable=False)
-    # time_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
-    time_created = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
-    time_updated = db.Column(db.DateTime(timezone=True), onupdate=func.now())
+    created_at = db.Column(db.DateTime(timezone=True), index=True, default=datetime.utcnow)     # default is handled by Python
+    updated_at = db.Column(db.DateTime(timezone=True), onupdate=func.now())
 
     author_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     author = db.relationship('User', backref='posts', lazy=False)     # , foreign_keys=[author_id]
