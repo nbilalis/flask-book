@@ -22,13 +22,19 @@ def add_data():
     db.session.commit()
 
     users = []
+
     users.append(User(username='haris', lastname='Argyropoulos', firstname='Zacharias-Christos', password='1234'))
     users.append(User(username='ioanna', lastname='Mitsani', firstname='Ioanna', password='1234'))
     users.append(User(username='stavros', lastname='Tsiogkas', firstname='Stavros', password='1234'))
     users.append(User(username='marios', lastname='Tsioutsis', firstname='Marios', password='1234'))
 
+    users.append(User(username='george', lastname='Sisko', firstname='George', password='1234'))
+    users.append(User(username='lena', lastname='Lekkou', firstname='Lena', password='1234'))
+    users.append(User(username='nikos.a', lastname='Apostolakis', firstname='Nikolaos', password='1234'))
+    users.append(User(username='nikos.b', lastname='Bilalis', firstname='Nikolaos', password='1234'))
+
     for u in users:
-        u.followers = [f for f in sample(users, randint(1, 4)) if f != u]
+        u.followers = [f for f in sample(users, randint(1, len(users))) if f != u]
         db.session.add(u)
 
     ts = datetime.now() - timedelta(weeks=6*4)    # .utcnow()
