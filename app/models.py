@@ -8,6 +8,7 @@ from sqlalchemy.sql import func
 from sqlalchemy.engine import Engine
 
 
+# python - Sqlite / SQLAlchemy: how to enforce Foreign Keys? - Stack Overflow - https://tmpl.at/3AubFgO
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
@@ -15,6 +16,7 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.close()
 
 
+# python - SQLAlchemy Many-to-Many Relationship on a Single Table - Stack Overflow - https://tmpl.at/3wdjlRp
 friendships = db.Table(
     'friendships',
     db.Column('follower_id', db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), primary_key=True),
