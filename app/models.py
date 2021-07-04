@@ -26,7 +26,7 @@ friendships = db.Table(
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(50), index=True, unique=True, nullable=False)
+    username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(50), nullable=False)
     firstname = db.Column(db.String(50), nullable=False)
     lastname = db.Column(db.String(50), nullable=False)
@@ -56,7 +56,7 @@ class Post(db.Model):
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=func.now())
 
     author_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
-    author = db.relationship('User', backref='posts', lazy=False)     # , foreign_keys=[author_id]
+    author = db.relationship('User', backref='posts')     # , foreign_keys=[author_id]
 
     # comments = db.relationship('Comment', backref='post', lazy=True)
 
@@ -72,7 +72,7 @@ class Comment(db.Model):
     author = db.relationship('User', backref='comments')
 
     post_id = db.Column(db.Integer, db.ForeignKey('post.id', ondelete='CASCADE'), nullable=False)
-    post = db.relationship('Post', backref='comments', lazy=True)
+    post = db.relationship('Post', backref='comments')
 
     def __repr__(self):
         return f'<Post {self.title=} {self.author_id=}>'
