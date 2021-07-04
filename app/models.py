@@ -15,10 +15,11 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.close()
 
 
-friendships = db.Table('friendships',
-                       db.Column('follower_id', db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), primary_key=True),
-                       db.Column('followee_id', db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), primary_key=True)
-                       )
+friendships = db.Table(
+    'friendships',
+    db.Column('follower_id', db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), primary_key=True),
+    db.Column('followee_id', db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), primary_key=True)
+)
 
 
 class User(db.Model):
@@ -30,14 +31,15 @@ class User(db.Model):
 
     # posts = db.relationship('Post', backref=db.backref('author', cascade="all, delete"), lazy=False, passive_deletes=True)
 
-    followers = db.relationship('User',
-                                secondary=friendships,
-                                primaryjoin=id == friendships.c.follower_id,
-                                secondaryjoin=id == friendships.c.followee_id,
-                                backref="followees",
-                                cascade="all, delete",
-                                lazy='subquery'
-                                )
+    followers = db.relationship(
+        'User',
+        secondary=friendships,
+        primaryjoin=id == friendships.c.follower_id,
+        secondaryjoin=id == friendships.c.followee_id,
+        backref="followees",
+        cascade="all, delete",
+        lazy='subquery'
+    )
 
     def __repr__(self):
         return f'<User {self.id=} {self.username=}>'
