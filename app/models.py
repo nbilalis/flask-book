@@ -1,12 +1,11 @@
 # type: ignore
 
-from flask_sqlalchemy import SQLAlchemy
+from . import db        # from app import db
+
 from datetime import datetime
 from sqlalchemy import event
 from sqlalchemy.sql import func
 from sqlalchemy.engine import Engine
-
-db = SQLAlchemy()
 
 
 @event.listens_for(Engine, "connect")
@@ -24,7 +23,7 @@ friendships = db.Table('friendships',
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
+    username = db.Column(db.String(50), index=True, unique=True, nullable=False)
     password = db.Column(db.String(50), nullable=False)
     firstname = db.Column(db.String(50), nullable=False)
     lastname = db.Column(db.String(50), nullable=False)
