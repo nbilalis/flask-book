@@ -1,6 +1,10 @@
 Flask
+Flask-SQLAlchemy
 flake8
 autopep8
 python-dotenv
-Flask-SQLAlchemy
+
+flask_debugtoolbar
+lorem
+
 pip
