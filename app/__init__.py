@@ -1,12 +1,15 @@
 from os import environ, path
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 from flask_debugtoolbar import DebugToolbarExtension
 
 BASE_PATH = path.dirname(path.abspath(__file__))
 
 db = SQLAlchemy()                   # API — Flask-SQLAlchemy Documentation (2.x) - https://tmpl.at/3htQ8w9
+migrate = Migrate()                 # Flask-Migrate — Flask-Migrate documentation - https://tmpl.at/3yg9ZWz
 toolbar = DebugToolbarExtension()   # Flask-DebugToolbar — Flask-DebugToolbar 0.12.dev0 documentation - https://tmpl.at/3Arw2LC
 
 
@@ -33,6 +36,7 @@ def create_app(test_config=None):
         app.config.from_mapping(test_config)
 
     db.init_app(app)
+    migrate.init_app(app, db)
     toolbar.init_app(app)
 
     with app.app_context():
