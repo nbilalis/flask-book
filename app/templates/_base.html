@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Flask-book</title>
+
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+	<!-- nav -->
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="{{ url_for('home') }}">Flask-book</a>
+			</div>
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="{{ url_for('home') }}">Home</a></li>
+				<li><a href="{{ url_for('profile') }}">Profile</a></li>
+				<li><a href="#">Logout</a></li>
+			</ul>
+		</div>
+	</nav>
+	<!-- ./nav -->
+
+	<!-- main -->
+	<main class="container">
+		{% block main %}{% endblock %}
+	</main>
+	<!-- ./main -->
+
+	<!-- footer -->
+	<footer class="container text-center">
+		<ul class="nav nav-pills pull-right">
+			<li>Flask-book - Made with 🐍, 🍻 &amp; 💖</li>
+		</ul>
+	</footer>
+	<!-- ./footer -->
+	<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
