@@ -3,6 +3,7 @@ from os import environ, path
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_bootstrap import Bootstrap
 
 from flask_debugtoolbar import DebugToolbarExtension
 
@@ -10,6 +11,7 @@ BASE_PATH = path.dirname(path.abspath(__file__))
 
 db = SQLAlchemy()                   # API — Flask-SQLAlchemy Documentation (2.x) - https://tmpl.at/3htQ8w9
 migrate = Migrate()                 # Flask-Migrate — Flask-Migrate documentation - https://tmpl.at/3yg9ZWz
+boostrap = Bootstrap()              # Flask-Bootstrap — Flask-Bootstrap 3.3.7.1 documentation - https://tmpl.at/3k82RHR
 toolbar = DebugToolbarExtension()   # Flask-DebugToolbar — Flask-DebugToolbar 0.12.dev0 documentation - https://tmpl.at/3Arw2LC
 
 
@@ -37,6 +39,7 @@ def create_app(test_config=None):
 
     db.init_app(app)
     migrate.init_app(app, db)
+    boostrap.init_app(app)
     toolbar.init_app(app)
 
     with app.app_context():
