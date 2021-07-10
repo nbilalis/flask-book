@@ -8,9 +8,21 @@ from sqlalchemy.sql import and_, or_, func
 
 from random import choice
 
+
 @app.get('/')
 def home():
-    return 'Welcome to Flask-book!'
+    return render_template('home.html')
+
+
+@app.get('/login-register')
+def login_register():
+    return render_template('login_register.html')
+
+
+@app.get('/profile/')
+@app.get('/profile/<username>')
+def profile(username=None):
+    return render_template('profile.html')
 
 
 @app.get('/test')
