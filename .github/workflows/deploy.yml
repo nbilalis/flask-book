@@ -1,0 +1,45 @@
+on: push
+name: 🚀 Deploy website on push
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v2
+
+    - name: 🔁 Touch restart.txt
+      run: |
+        mkdir ./tmp
+        echo $(date) > ./tmp/restart.txt
+        touch ./tmp/restart.txt
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@4.0.0
+      with:
+        server: ftp.sae-projects.eu
+        username: saeprojects
+        password: ${{ secrets.ftp_password }}
+        server-dir: ./flask-book/
+        exclude: README.md
+          - __pycache__/**
+          - __pycache__
+          - .git/**
+          - .git
+          - .github/**
+          - .github
+          - .vscode/**
+          - .vscode
+          - _assets/**
+          - _assets
+          - app/__pycache__/**
+          - app/__pycache__
+          - migrations/**
+          - migrations
+          - _setup_*
+          - .editorconfig
+          - .flake8
+          - .flaskenv
+          - .gitattributes
+          - .gitignore
+          - LICENSE
+          - requirements.txt
