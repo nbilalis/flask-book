@@ -4,13 +4,13 @@ from wtforms.validators import DataRequired, Length, Email
 
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', description='Username', validators=[DataRequired(), Length(min=8, max=32)])
+    username = StringField('Username', description='Username', validators=[DataRequired(), Length(min=4, max=16)])
     password = PasswordField('Password', description='Password', validators=[DataRequired(), Length(min=8, max=32)])
     submit_login = SubmitField('Login')
 
 
 class RegisterForm(FlaskForm):
-    username = StringField('Username', description='Username', validators=[DataRequired(), Length(min=8, max=32)])
+    username = StringField('Username', description='Username', validators=[DataRequired(), Length(min=4, max=16)])
     password = PasswordField('Password', description='Password', validators=[DataRequired(), Length(min=8, max=32)])
     email = StringField('E-Mail', description='E-Mail', validators=[DataRequired(), Email()])
     submit_register = SubmitField('Register')
