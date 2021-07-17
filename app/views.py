@@ -2,8 +2,8 @@ from random import choice
 from functools import wraps
 
 from flask import current_app as app
-
 from flask import render_template, redirect, url_for, flash, session, request, make_response
+
 from werkzeug.security import check_password_hash, generate_password_hash
 from is_safe_url import is_safe_url
 
@@ -11,6 +11,7 @@ from sqlalchemy.orm import joinedload, load_only
 from sqlalchemy.sql import and_, or_, func
 
 from . import db
+
 from .models import User, Post
 from .forms import RegisterForm, LoginForm
 
@@ -41,11 +42,6 @@ def home():
 def login_register():
     '''
     Handle Login and Register
-    Resources:
-    Quickstart — Flask-WTF Documentation (0.15.x) - https://tmpl.at/3z4QwbG
-    Form Validation with WTForms — Flask Documentation (2.0.x) - https://tmpl.at/3z9jrLS
-    Handling forms — Explore Flask 1.0 documentation - https://tmpl.at/3esWA5M
-    Multiple forms in a single page using flask and WTForms - Stack Overflow - https://tmpl.at/3yZctJg
     '''
     login_form = LoginForm()
     register_form = RegisterForm()

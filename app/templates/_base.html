@@ -1,3 +1,5 @@
+{# Flask-Bootstrap — Flask-Bootstrap 3.3.7.1 documentation - https://tmpl.at/3imlYeU #}
+
 {% extends "bootstrap/base.html" %}
 
 {% block title %}Flask-Book{% endblock %}
@@ -27,19 +29,19 @@
 {% block content %}
 	<!-- main -->
 	<main class="container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+		{% with messages = get_flashed_messages(with_categories=true) %}
+			{% if messages %}
+				{% for category, message in messages %}
+					<div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
+				{% endfor %}
+			{% endif %}
+		{% endwith %}
 
-        {% block main %}{% endblock %}
+		{% block main %}{% endblock %}
 	</main>
 	<!-- ./main -->
 
-    <footer class="container text-center">
+	<footer class="container text-center">
 		<ul class="nav nav-pills pull-right">
 			<li>Flask-Book - Made with 🐍, 🍻 &amp; 💖</li>
 		</ul>
