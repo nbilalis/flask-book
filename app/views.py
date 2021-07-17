@@ -7,6 +7,7 @@ from flask import render_template, redirect, url_for, flash, session
 from sqlalchemy.orm import joinedload, load_only
 from sqlalchemy.sql import and_, or_, func
 
+from . import db
 from .models import User, Post
 from .forms import RegisterForm, LoginForm
 
@@ -59,7 +60,16 @@ def login_register():
             return redirect(url_for("profile", username=user.username))
 
     if register_form.submit_register.data and register_form.validate():
-        flash('Registration successful!', category='success')
+        user = User.query.filter_by(username=login_form.username.data).one_or_none()
+
+        if user is None:
+            user = User(username=login_form.username.data, password=login_form.password.data)
+            db.session.add(user)
+            db.session.commit()
+            flash('Registration successful!', category='success')
+        else:
+            flash('Username already in use!', category='error')
+
         return redirect(url_for("profile", username=register_form.username.data))
 
     return render_template('login_register.html', register_form=register_form, login_form=login_form)
