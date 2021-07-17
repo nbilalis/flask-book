@@ -1,10 +1,11 @@
 from flask import current_app as app
 
-from .models import User, Post
-
-from flask import render_template
+from flask import render_template, redirect, url_for, flash
 from sqlalchemy.orm import joinedload, load_only
 from sqlalchemy.sql import and_, or_, func
+
+from .models import User, Post
+from .forms import RegisterForm, LoginForm
 
 from random import choice
 
@@ -14,9 +15,32 @@ def home():
     return render_template('home.html')
 
 
-@app.get('/login-register')
+
+@app.route('/login-register', methods=['GET', 'POST'])
 def login_register():
-    return render_template('login_register.html')
+    '''
+    Handle Login and Registef
+    Resources:
+    Quickstart — Flask-WTF Documentation (0.15.x) - https://tmpl.at/3z4QwbG
+    Form Validation with WTForms — Flask Documentation (2.0.x) - https://tmpl.at/3z9jrLS
+    Handling forms — Explore Flask 1.0 documentation - https://tmpl.at/3esWA5M
+    Multiple forms in a single page using flask and WTForms - Stack Overflow - https://tmpl.at/3yZctJg
+    '''
+    login_form = LoginForm()
+    register_form = RegisterForm()
+
+    # Don't use `validate_on_submit()`
+    # It will cause both forms to be populated
+
+    if login_form.submit_login.data and login_form.validate():
+        flash('Login successful!', category='success')
+        return redirect(url_for("profile", username=login_form.username.data))
+
+    if register_form.submit_register.data and register_form.validate():
+        flash('Registration successful!', category='success')
+        return redirect(url_for("profile", username=register_form.username.data))
+
+    return render_template('login_register.html', register_form=register_form, login_form=login_form)
 
 
 @app.get('/profile/')
