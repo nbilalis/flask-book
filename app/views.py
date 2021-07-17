@@ -60,18 +60,32 @@ def login_register():
             return redirect(url_for("profile", username=user.username))
 
     if register_form.submit_register.data and register_form.validate():
-        user = User.query.filter_by(username=login_form.username.data).one_or_none()
+        user = User.query.filter(
+            (User.username == register_form.username.data) | (User.email == register_form.email.data)
+        ).one_or_none()
 
-        if user is None:
-            user = User(username=login_form.username.data, password=login_form.password.data)
+        if user is not None:
+            if user.username == register_form.username.data:
+                flash('Username already taken!', category='warning')
+            else:
+                flash('Someone has already registered with this E-mail address!', category='warning')
+        else:
+            user = User(
+                username=register_form.username.data,
+                password=register_form.password.data,
+                email=register_form.email.data,
+                firstname=register_form.firstname.data,
+                lastname=register_form.lastname.data,
+            )
             db.session.add(user)
             db.session.commit()
+
             flash('Registration successful!', category='success')
-        else:
-            flash('Username already in use!', category='error')
 
-        return redirect(url_for("profile", username=register_form.username.data))
+            session['username'] = user.username
+            return redirect(url_for("profile", username=register_form.username.data))
 
+    # First visit of vaidation errors
     return render_template('login_register.html', register_form=register_form, login_form=login_form)
 
 
