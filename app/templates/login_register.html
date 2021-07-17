@@ -61,8 +61,13 @@
 		</div>
 
 		<div class="form-group">
-            {{ register_form.password(class="form-control", placeholder="Password") }}
-            {{ show_errors(register_form.password) }}
+			{{ register_form.firstname(class="form-control", placeholder="Firstname") }}
+			{{ show_errors(register_form.firstname) }}
+		</div>
+
+		<div class="form-group">
+			{{ register_form.lastname(class="form-control", placeholder="Lastname") }}
+			{{ show_errors(register_form.lastname) }}
 		</div>
 
 		<div class="form-group">
