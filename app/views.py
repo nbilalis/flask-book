@@ -33,7 +33,6 @@ def home():
     return render_template('home.html')
 
 
-
 @app.route('/login-register', methods=['GET', 'POST'])
 def login_register():
     '''
@@ -51,8 +50,13 @@ def login_register():
     # It will cause both forms to be populated
 
     if login_form.submit_login.data and login_form.validate():
-        flash('Login successful!', category='success')
-        return redirect(url_for("profile", username=login_form.username.data))
+        user = User.query.filter_by(username=login_form.username.data, password=login_form.password.data).one_or_none()
+
+        if user is None:
+            flash('Wrong username and / or password. Please try again!', category='danger')
+        else:
+            session['username'] = user.username
+            return redirect(url_for("profile", username=user.username))
 
     if register_form.submit_register.data and register_form.validate():
         flash('Registration successful!', category='success')

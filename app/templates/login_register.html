@@ -8,28 +8,25 @@
 	<h4>Login to start enjoying unlimited fun!</h4>
 
 	<!-- login form -->
-    {# <form action="{{ url_for('login') }}" method="POST">
-    {{ register_form.username.label }} {{ register_form.password() }}
-    {{ register_form.password.label }} {{ register_form.password() }}
-    {{ register_form.submit() }}
-    </form> #}
-	<form action="{{ url_for('login_register') }}" method="POST" novalidate>
-        {{ register_form.hidden_tag() }}
+	{# <form action="{{ url_for('login') }}" method="POST">
+	{{ register_form.username.label }} {{ register_form.password() }}
+	{{ register_form.password.label }} {{ register_form.password() }}
+	{{ register_form.submit() }}
+	</form> #}
+	<form action="{{ url_for('login_register') }}" method="POST">
+		{{ login_form.hidden_tag() }}
+        <input type="hidden" value="{{ request.args.get('next') }}">
 
-        {% set has_been_validated = login_form.submit_login.data %}
-        {% for field in login_form %}
-            {% if field.type != 'SubmitField' and field.type != 'CSRFTokenField' %}
-                <div class="form-group {% if has_been_validated %} has-feedback {{ 'has-error' if field.errors else 'has-success' }} {% endif %}">
-                    {{ field(class="form-control", placeholder=field.description) }}
-                    {% if has_been_validated %}
-                        <span class="glyphicon glyphicon-{{ 'remove' if field.errors else 'ok' }} form-control-feedback" aria-hidden="true"></span>
-                    {% endif %}
-                </div>
-            {% endif %}
-        {% endfor %}
+        <div class="form-group">
+			{{ login_form.username(class="form-control", placeholder="Username") }}
+		</div>
 
 		<div class="form-group">
-		    {{ login_form.submit_login(class="btn btn-primary") }}
+			{{ login_form.password(class="form-control", placeholder="Password") }}
+		</div>
+
+		<div class="form-group">
+			{{ login_form.submit_login(class="btn btn-primary") }}
 		</div>
 	</form>
 	<!-- ./login form -->
