@@ -3,6 +3,7 @@ from functools import wraps
 
 from flask import current_app as app
 
+from flask import render_template, redirect, url_for, flash, session, request, make_response
 from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy.orm import joinedload, load_only
 from sqlalchemy.sql import and_, or_, func
@@ -37,7 +38,7 @@ def home():
 @app.route('/login-register', methods=['GET', 'POST'])
 def login_register():
     '''
-    Handle Login and Registef
+    Handle Login and Register
     Resources:
     Quickstart — Flask-WTF Documentation (0.15.x) - https://tmpl.at/3z4QwbG
     Form Validation with WTForms — Flask Documentation (2.0.x) - https://tmpl.at/3z9jrLS
@@ -46,6 +47,9 @@ def login_register():
     '''
     login_form = LoginForm()
     register_form = RegisterForm()
+
+    if not login_form.username.data and (username := request.cookies.get('username')):
+        login_form.username.data = username
 
     # Don't use `validate_on_submit()`
     # It will cause both forms to be populated
@@ -59,7 +63,9 @@ def login_register():
             flash('Wrong username and / or password. Please try again!', category='danger')
         else:
             session['username'] = user.username
-            return redirect(url_for("profile", username=user.username))
+            res = make_response(redirect(url_for("profile", username=user.username)))
+            res.set_cookie('username', user.username)
+            return res
 
     if register_form.submit_register.data and register_form.validate():
         user = User.query.filter(
