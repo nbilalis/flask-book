@@ -5,6 +5,8 @@ from flask import current_app as app
 
 from flask import render_template, redirect, url_for, flash, session, request, make_response
 from werkzeug.security import check_password_hash, generate_password_hash
+from is_safe_url import is_safe_url
+
 from sqlalchemy.orm import joinedload, load_only
 from sqlalchemy.sql import and_, or_, func
 
@@ -22,7 +24,7 @@ def login_required(view):
     def wrapped_view(**kwargs):
         if session.get('username') is None:
             flash('You need to login first!', category='warning')
-            return redirect(url_for('login_register'))
+            return redirect(url_for('login_register', next=request.path))
 
         return view(**kwargs)
 
@@ -62,8 +64,11 @@ def login_register():
         if user is None or not check_password_hash(user.password, login_form.password.data):
             flash('Wrong username and / or password. Please try again!', category='danger')
         else:
+            # Successfull login!
             session['username'] = user.username
-            res = make_response(redirect(url_for("profile", username=user.username)))
+            next = request.form.get('next')
+            url = next if is_safe_url(next, {request.host}) else url_for('profile', username=user.username)
+            res = make_response(redirect(url))
             res.set_cookie('username', user.username)
             return res
 
@@ -78,6 +83,7 @@ def login_register():
             else:
                 flash('Someone has already registered with this E-mail address!', category='warning')
         else:
+            # Successfull registration!
             user = User(
                 username=register_form.username.data,
                 password=generate_password_hash(register_form.password.data),

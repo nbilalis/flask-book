@@ -1,6 +1,8 @@
 Flask
 Flask-SQLAlchemy
 Flask-Migrate
+Flask-WTF
+is-safe-url
 
 Flask-DebugToolbar
 lorem
