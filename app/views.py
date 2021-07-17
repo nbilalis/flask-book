@@ -1,16 +1,34 @@
+from random import choice
+from functools import wraps
+
 from flask import current_app as app
 
-from flask import render_template, redirect, url_for, flash
+from flask import render_template, redirect, url_for, flash, session
 from sqlalchemy.orm import joinedload, load_only
 from sqlalchemy.sql import and_, or_, func
 
 from .models import User, Post
 from .forms import RegisterForm, LoginForm
 
-from random import choice
+
+def login_required(view):
+    '''
+    Decorate that checks if user os logged in
+    by looking for username is session
+    '''
+    @wraps(view)
+    def wrapped_view(**kwargs):
+        if session.get('username') is None:
+            flash('You need to login first!', category='warning')
+            return redirect(url_for('login_register'))
+
+        return view(**kwargs)
+
+    return wrapped_view
 
 
 @app.get('/')
+@login_required
 def home():
     return render_template('home.html')
 
@@ -45,6 +63,7 @@ def login_register():
 
 @app.get('/profile/')
 @app.get('/profile/<username>')
+@login_required
 def profile(username=None):
     return render_template('profile.html')
 
