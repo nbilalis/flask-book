@@ -1,25 +1,46 @@
+from random import choice
+from functools import wraps
+
 from flask import current_app as app
 
-from flask import render_template, redirect, url_for, flash
+from flask import render_template, redirect, url_for, flash, session, request, make_response
+from werkzeug.security import check_password_hash, generate_password_hash
+from is_safe_url import is_safe_url
+
 from sqlalchemy.orm import joinedload, load_only
 from sqlalchemy.sql import and_, or_, func
 
+from . import db
 from .models import User, Post
 from .forms import RegisterForm, LoginForm
 
-from random import choice
+
+def login_required(view):
+    '''
+    Decorate that checks if user os logged in
+    by looking for username is session
+    '''
+    @wraps(view)
+    def wrapped_view(**kwargs):
+        if session.get('username') is None:
+            flash('You need to login first!', category='warning')
+            return redirect(url_for('login_register', next=request.path))
+
+        return view(**kwargs)
+
+    return wrapped_view
 
 
 @app.get('/')
+@login_required
 def home():
     return render_template('home.html')
-
 
 
 @app.route('/login-register', methods=['GET', 'POST'])
 def login_register():
     '''
-    Handle Login and Registef
+    Handle Login and Register
     Resources:
     Quickstart — Flask-WTF Documentation (0.15.x) - https://tmpl.at/3z4QwbG
     Form Validation with WTForms — Flask Documentation (2.0.x) - https://tmpl.at/3z9jrLS
@@ -29,24 +50,75 @@ def login_register():
     login_form = LoginForm()
     register_form = RegisterForm()
 
+    if not login_form.username.data and (username := request.cookies.get('username')):
+        login_form.username.data = username
+
     # Don't use `validate_on_submit()`
     # It will cause both forms to be populated
 
     if login_form.submit_login.data and login_form.validate():
-        flash('Login successful!', category='success')
-        return redirect(url_for("profile", username=login_form.username.data))
+        user = User.query.filter_by(
+            username=login_form.username.data,
+        ).one_or_none()
+
+        if user is None or not check_password_hash(user.password, login_form.password.data):
+            flash('Wrong username and / or password. Please try again!', category='danger')
+        else:
+            # Successfull login!
+            session['username'] = user.username
+            next = request.form.get('next')
+            url = next if is_safe_url(next, {request.host}) else url_for('profile', username=user.username)
+            res = make_response(redirect(url))
+            res.set_cookie('username', user.username)
+            return res
 
     if register_form.submit_register.data and register_form.validate():
-        flash('Registration successful!', category='success')
-        return redirect(url_for("profile", username=register_form.username.data))
+        user = User.query.filter(
+            (User.username == register_form.username.data) | (User.email == register_form.email.data)
+        ).one_or_none()
 
+        if user is not None:
+            if user.username == register_form.username.data:
+                flash('Username already taken!', category='warning')
+            else:
+                flash('Someone has already registered with this E-mail address!', category='warning')
+        else:
+            # Successfull registration!
+            user = User(
+                username=register_form.username.data,
+                password=generate_password_hash(register_form.password.data),
+                email=register_form.email.data,
+                firstname=register_form.firstname.data,
+                lastname=register_form.lastname.data,
+            )
+            db.session.add(user)
+            db.session.commit()
+
+            flash('Registration successful!', category='success')
+
+            session['username'] = user.username
+            return redirect(url_for("profile", username=register_form.username.data))
+
+    # First visit of vaidation errors
     return render_template('login_register.html', register_form=register_form, login_form=login_form)
+
+
+@app.get('/logout')
+def logout():
+    '''
+    Logout the use by clearing teh session
+    '''
+    session.clear()     # session.pop('username')
+    return redirect(url_for('login_register'))
 
 
 @app.get('/profile/')
 @app.get('/profile/<username>')
+@login_required
 def profile(username=None):
-    return render_template('profile.html')
+    user = User.query.filter_by(username=username).first_or_404()
+
+    return render_template('profile.html', user=user)
 
 
 @app.get('/test')
