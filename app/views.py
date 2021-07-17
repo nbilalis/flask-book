@@ -3,7 +3,7 @@ from functools import wraps
 
 from flask import current_app as app
 
-from flask import render_template, redirect, url_for, flash, session
+from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy.orm import joinedload, load_only
 from sqlalchemy.sql import and_, or_, func
 
@@ -51,9 +51,11 @@ def login_register():
     # It will cause both forms to be populated
 
     if login_form.submit_login.data and login_form.validate():
-        user = User.query.filter_by(username=login_form.username.data, password=login_form.password.data).one_or_none()
+        user = User.query.filter_by(
+            username=login_form.username.data,
+        ).one_or_none()
 
-        if user is None:
+        if user is None or not check_password_hash(user.password, login_form.password.data):
             flash('Wrong username and / or password. Please try again!', category='danger')
         else:
             session['username'] = user.username
@@ -72,7 +74,7 @@ def login_register():
         else:
             user = User(
                 username=register_form.username.data,
-                password=register_form.password.data,
+                password=generate_password_hash(register_form.password.data),
                 email=register_form.email.data,
                 firstname=register_form.firstname.data,
                 lastname=register_form.lastname.data,
