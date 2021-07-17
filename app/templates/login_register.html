@@ -37,22 +37,39 @@
 	<div class="col-md-6">
 	<h4>Don't have an account yet? Register!</h4>
 
+    {% macro show_errors(field) %}
+        {% if field.errors %}
+            <div class="invalid-feedback">
+            {% for error in field.errors %}
+                <div>{{ error }}</div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    {% endmacro %}
+
 	<!-- register form -->
-	<form method="post" action="home.html">
+    {# {% import "bootstrap/wtf.html" as wtf %}
+    {{ wtf.quick_form(register_form) }} #}
+	<form action="{{ url_for('login_register') }}" method="POST" class="needs-validation" novalidate>
+        {{ register_form.csrf_token }}
+
 		<div class="form-group">
-		<input class="form-control" type="text" name="username" placeholder="Username">
+            {{ register_form.username(class="form-control", placeholder="Username") }}
+            {{ show_errors(register_form.username) }}
 		</div>
 
 		<div class="form-group">
-		<input class="form-control" type="text" name="location" placeholder="Location">
+            {{ register_form.email(class="form-control", placeholder="E-mail", type="email") }}
+            {{ show_errors(register_form.email) }}
 		</div>
 
 		<div class="form-group">
-		<input class="form-control" type="password" name="password" placeholder="Password">
+            {{ register_form.password(class="form-control", placeholder="Password") }}
+            {{ show_errors(register_form.password) }}
 		</div>
 
 		<div class="form-group">
-		<input class="btn btn-success" type="submit" name="register" value="Register">
+            {{ register_form.submit_register(class="btn btn-success") }}
 		</div>
 	</form>
 	<!-- ./register form -->
