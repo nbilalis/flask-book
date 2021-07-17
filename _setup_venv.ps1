@@ -1,4 +1,4 @@
-Remove-Item .venv -Recurse -Force -Confirm:$false
+Remove-Item .venv -Recurse -Force -Confirm:$false -ErrorAction SilentlyContinue
 
 python -m venv .venv
 .\.venv\Scripts\activate
