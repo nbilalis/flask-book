@@ -65,6 +65,15 @@ def login_register():
     return render_template('login_register.html', register_form=register_form, login_form=login_form)
 
 
+@app.get('/logout')
+def logout():
+    '''
+    Logout the use by clearing teh session
+    '''
+    session.clear()     # session.pop('username')
+    return redirect(url_for('login_register'))
+
+
 @app.get('/profile/')
 @app.get('/profile/<username>')
 @login_required
