@@ -102,7 +102,9 @@ def logout():
 @app.get('/profile/<username>')
 @login_required
 def profile(username=None):
-    return render_template('profile.html')
+    user = User.query.filter_by(username=username).first_or_404()
+
+    return render_template('profile.html', user=user)
 
 
 @app.get('/test')
