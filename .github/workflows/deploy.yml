@@ -19,27 +19,19 @@ jobs:
         server: ftp.sae-projects.eu
         username: saeprojects
         password: ${{ secrets.ftp_password }}
+        dry-run: false
         server-dir: ./flask-book/
-        exclude: README.md
-          - __pycache__/**
+        exclude: This is a string, not a list, so you need to put something here
           - __pycache__
-          - .git/**
-          - .git
-          - .github/**
-          - .github
-          - .vscode/**
-          - .vscode
-          - _assets/**
           - _assets
-          - app/__pycache__/**
-          - app/__pycache__
-          - migrations/**
-          - migrations
+          - _assets/**
+          - _links
+          - _links/**
           - _setup_*
-          - .editorconfig
-          - .flake8
-          - .flaskenv
-          - .gitattributes
-          - .gitignore
+          - .*
+          - .*/**
+          - migrations
+          - migrations/**
           - LICENSE
+          - README.md
           - requirements.txt

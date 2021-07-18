@@ -18,8 +18,8 @@ from .forms import RegisterForm, LoginForm
 
 def login_required(view):
     '''
-    Decorate that checks if user os logged in
-    by looking for username is session
+    Decorate that checks if user is logged in
+    and redirects them if not
     '''
     @wraps(view)
     def wrapped_view(**kwargs):
@@ -42,37 +42,55 @@ def home():
 def login_register():
     '''
     Handle Login and Register
+
+    Resources:
+    Blueprints and Views — Flask Documentation (2.0.x) - https://bit.ly/3xPaEys
+    Multiple forms in a single page using flask and WTForms - Stack Overflow - https://bit.ly/3kxEHXu
     '''
-    login_form = LoginForm()
-    register_form = RegisterForm()
 
-    if not login_form.username.data and (username := request.cookies.get('username')):
-        login_form.username.data = username
+    # Initialize the two forms.
+    # We manually pass `request.form` or `None`,
+    # because the two forms use fields with same names (should we change that?)
+    # If they are not initialized this way, values posted from one form,
+    # appears to the other one too.
+    login_form = LoginForm(request.form if request.form.get('submit_login') else None)
+    register_form = RegisterForm(request.form if request.form.get('submit_register') else None)
 
-    # Don't use `validate_on_submit()`
-    # It will cause both forms to be populated
+    """ if not login_form.username.data and (username := request.cookies.get('username')):
+        login_form.username.data = username """
 
-    if login_form.submit_login.data and login_form.validate():
+    # If `LoginForm` was submitted and validated
+    if login_form.validate_on_submit():
+        # Get the user from the DB by their `username`
         user = User.query.filter_by(
             username=login_form.username.data,
         ).one_or_none()
 
+        # User not found or password hashes don't match
         if user is None or not check_password_hash(user.password, login_form.password.data):
             flash('Wrong username and / or password. Please try again!', category='danger')
         else:
             # Successfull login!
+            # Store `username` in `session`
             session['username'] = user.username
+            # Check if there is a kept return url
             next = request.form.get('next')
+            # Otherwise send them to their profile page
             url = next if is_safe_url(next, {request.host}) else url_for('profile', username=user.username)
             res = make_response(redirect(url))
+            # Keep the `username` in a cookie
+            # to just autocomplete the username in the `LoginForm`
             res.set_cookie('username', user.username)
             return res
 
-    if register_form.submit_register.data and register_form.validate():
+    # If `RegisterForm` was submitted and validated
+    if register_form.validate_on_submit():
+        # Check for existing user with same `username` or `email`
         user = User.query.filter(
             (User.username == register_form.username.data) | (User.email == register_form.email.data)
         ).one_or_none()
 
+        # If `username` or `email` is already used
         if user is not None:
             if user.username == register_form.username.data:
                 flash('Username already taken!', category='warning')
@@ -80,20 +98,23 @@ def login_register():
                 flash('Someone has already registered with this E-mail address!', category='warning')
         else:
             # Successfull registration!
-            user = User(
-                username=register_form.username.data,
-                password=generate_password_hash(register_form.password.data),
-                email=register_form.email.data,
-                firstname=register_form.firstname.data,
-                lastname=register_form.lastname.data,
-            )
+
+            # Set a new `User` object
+            # python - Flask - how do I combine Flask-WTF and Flask-SQLAlchemy to edit db models? - Stack Overflow - https://bit.ly/3iiCNHm
+            user = User()
+            register_form.populate_obj(user)
+            user.password = generate_password_hash(register_form.password.data)
+
+            # Persist it in the DB
             db.session.add(user)
             db.session.commit()
 
             flash('Registration successful!', category='success')
 
+            # "Log" them me automatically
             session['username'] = user.username
-            return redirect(url_for("profile", username=register_form.username.data))
+            # Redirect them to their profile page
+            return redirect(url_for("profile", username=user.username))
 
     # First visit of vaidation errors
     return render_template('login_register.html', register_form=register_form, login_form=login_form)
@@ -104,6 +125,7 @@ def logout():
     '''
     Logout the use by clearing teh session
     '''
+    # Clearing the `session` effectively log out the user
     session.clear()     # session.pop('username')
     return redirect(url_for('login_register'))
 
@@ -116,9 +138,15 @@ def profile(username=None):
 
     return render_template('profile.html', user=user)
 
+#
+# Here be dragons
+# -------------------------------------------------- #
 
 @app.get('/test')
 def test():
+    '''
+    Hit the '/test' route to see some queries in action
+    '''
     users_alphabetically = User.query.order_by(User.lastname, User.firstname).all()
     random_user = choice(users_alphabetically)
 
@@ -134,7 +162,8 @@ def test():
         'login_user': User.query.filter(and_(User.username == random_user.username, User.password == random_user.password)).one_or_none(),
         'ten_latest_posts': Post.query.options(joinedload(Post.author)).with_entities(Post, User).order_by(Post.created_at.desc()).limit(10).all(),
         'first_post_from_search': Post.query.filter(or_(Post.title.like('%est%'), Post.body.like('%est%'))).first(),
-        # Here be dragons
+
+        # Here be more dragons
         'user_with_post_count_1': User.query.join(Post).group_by(User).with_entities(User, func.count(Post.id).label('post_count')).all(),
         'user_with_post_count_2': User.query.with_entities(User, post_count_sub.label('post_count')).all(),
         'users_with_their_latest_post_1': User.query.join(Post).with_entities(User, Post).filter(and_(User.id == last_post_per_user_sub.c.author_id, Post.created_at == last_post_per_user_sub.c.last_post_ts)).all(),

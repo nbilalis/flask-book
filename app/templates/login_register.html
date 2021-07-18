@@ -7,12 +7,16 @@
 	<div class="col-md-6">
 	<h4>Login to start enjoying unlimited fun!</h4>
 
+    {#
+    Resources:
+    Flask-WTF — Flask-WTF Documentation (0.15.x) - https://bit.ly/3kzrcGY
+    WTForms support — Flask-Bootstrap 3.3.7.1 documentation - https://bit.ly/3Bl3zrB
+    WTForms — WTForms Documentation (2.3.x) - https://bit.ly/3BjY1gH
+    Form Validation with WTForms — Flask Documentation (2.0.x) - https://bit.ly/3kM9osj
+    Handling forms — Explore Flask 1.0 documentation - https://bit.ly/3kuRkTe
+    #}
+
 	<!-- login form -->
-	{# <form action="{{ url_for('login') }}" method="POST">
-	{{ register_form.username.label }} {{ register_form.password() }}
-	{{ register_form.password.label }} {{ register_form.password() }}
-	{{ register_form.submit() }}
-	</form> #}
 	<form action="{{ url_for('login_register') }}" method="POST">
 		{{ login_form.hidden_tag() }}
         <input type="hidden" value="{{ request.args.get('next') }}">
@@ -47,7 +51,7 @@
 		{% endif %}
 	{% endmacro %}
 
-    {% macro show_field(field, has_been_validated=false) %}
+    {% macro render_field(field, has_been_validated=false) %}
         {% if field.type != 'SubmitField' and field.type != 'CSRFTokenField' %}
             <div class="form-group {% if has_been_validated %} has-feedback {{ 'has-error' if field.errors else 'has-success' }} {% endif %}">
                 {{ field(class="form-control", placeholder=field.description) }}
@@ -65,7 +69,7 @@
 		{{ register_form.csrf_token }}
 
 		{% for field in register_form %}
-            {{ show_field(field, has_been_validated=register_form.submit_register.data) }}
+            {{ render_field(field, has_been_validated=register_form.submit_register.data) }}
 		{% endfor %}
 
 		<div class="form-group">
