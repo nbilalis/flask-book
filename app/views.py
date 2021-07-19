@@ -1,8 +1,7 @@
 from random import choice
-from functools import wraps
 
 from flask import current_app as app
-from flask import render_template, redirect, url_for, flash, session, request, make_response
+from flask import render_template, redirect, url_for, flash, session, request, abort
 
 from werkzeug.security import check_password_hash, generate_password_hash
 from is_safe_url import is_safe_url
@@ -10,26 +9,12 @@ from is_safe_url import is_safe_url
 from sqlalchemy.orm import joinedload, load_only
 from sqlalchemy.sql import and_, or_, func
 
+from flask_login import login_user, logout_user, login_required
+
 from . import db
 
 from .models import User, Post
 from .forms import RegisterForm, LoginForm
-
-
-def login_required(view):
-    '''
-    Decorate that checks if user is logged in
-    and redirects them if not
-    '''
-    @wraps(view)
-    def wrapped_view(**kwargs):
-        if session.get('username') is None:
-            flash('You need to login first!', category='warning')
-            return redirect(url_for('login_register', next=request.path))
-
-        return view(**kwargs)
-
-    return wrapped_view
 
 
 @app.get('/')
@@ -46,6 +31,9 @@ def login_register():
     Resources:
     Blueprints and Views — Flask Documentation (2.0.x) - https://bit.ly/3xPaEys
     Multiple forms in a single page using flask and WTForms - Stack Overflow - https://bit.ly/3kxEHXu
+    How To Add Authentication to Your App with Flask-Login | DigitalOcean - https://do.co/3wK4Vsk
+    Flask-Login — Flask-Login 0.4.1 documentation - https://bit.ly/3zfPt98
+    Flask-Security — Flask-Security 3.0.0 documentation - https://bit.ly/36HOdiK
     '''
 
     # Initialize the two forms.
@@ -71,17 +59,14 @@ def login_register():
             flash('Wrong username and / or password. Please try again!', category='danger')
         else:
             # Successfull login!
-            # Store `username` in `session`
-            session['username'] = user.username
-            # Check if there is a kept return url
-            next = request.form.get('next')
-            # Otherwise send them to their profile page
-            url = next if is_safe_url(next, {request.host}) else url_for('profile', username=user.username)
-            res = make_response(redirect(url))
-            # Keep the `username` in a cookie
-            # to just autocomplete the username in the `LoginForm`
-            res.set_cookie('username', user.username)
-            return res
+            login_user(user, remember=True)
+
+            next = request.args.get('next') or session.get('next')
+
+            if next is not None and not is_safe_url(next, {request.host}):
+                return abort(400)
+
+            return redirect(next or url_for('profile', username=user.username))
 
     # If `RegisterForm` was submitted and validated
     if register_form.validate_on_submit():
@@ -93,9 +78,11 @@ def login_register():
         # If `username` or `email` is already used
         if user is not None:
             if user.username == register_form.username.data:
-                flash('Username already taken!', category='warning')
+                register_form.username.data = None
+                register_form.username.errors.append('Username already taken!')
             else:
-                flash('Someone has already registered with this E-mail address!', category='warning')
+                register_form.email.data = None
+                register_form.email.errors.append('Someone has already registered with this e-mail address!')
         else:
             # Successfull registration!
 
@@ -112,7 +99,8 @@ def login_register():
             flash('Registration successful!', category='success')
 
             # "Log" them me automatically
-            session['username'] = user.username
+            login_user(user, remember=True)
+
             # Redirect them to their profile page
             return redirect(url_for("profile", username=user.username))
 
@@ -123,10 +111,9 @@ def login_register():
 @app.get('/logout')
 def logout():
     '''
-    Logout the use by clearing teh session
+    Logout the user
     '''
-    # Clearing the `session` effectively log out the user
-    session.clear()     # session.pop('username')
+    logout_user()
     return redirect(url_for('login_register'))
 
 

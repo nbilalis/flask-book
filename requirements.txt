@@ -3,6 +3,8 @@ Flask-SQLAlchemy
 Flask-Migrate
 Flask-Bootstrap
 Flask-WTF
+Flask-Login
+
 email-validator
 is-safe-url
 

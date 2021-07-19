@@ -16,10 +16,10 @@
 			<div class="navbar-header">
 				<a class="navbar-brand" href="{{ url_for('home') }}">Flask-Book</a>
 			</div>
-			{% if session.get('username') is not none %}
+			{% if current_user.is_authenticated %}
 				<ul class="nav navbar-nav navbar-right">
 					<li><a href="{{ url_for('home') }}">Home</a></li>
-					<li><a href="{{ url_for('profile', username=session.get('username')) }}">Profile</a></li>
+					<li><a href="{{ url_for('profile', username=current_user.username) }}">Profile</a></li>
 					<li><a href="{{ url_for('logout') }}">Logout</a></li>
 				</ul>
 			{% endif %}

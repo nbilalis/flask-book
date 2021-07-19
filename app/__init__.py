@@ -3,6 +3,7 @@ from os import environ, path
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
 
 from flask_debugtoolbar import DebugToolbarExtension
@@ -11,6 +12,7 @@ BASE_PATH = path.dirname(path.abspath(__file__))
 
 db = SQLAlchemy()                   # API — Flask-SQLAlchemy Documentation (2.x) - https://tmpl.at/3htQ8w9
 migrate = Migrate()                 # Flask-Migrate — Flask-Migrate documentation - https://tmpl.at/3yg9ZWz
+login_manager = LoginManager()      # Flask-Login — Flask-Login 0.4.1 documentation - https://bit.ly/2Uo7fba
 boostrap = Bootstrap()              # Flask-Bootstrap — Flask-Bootstrap 3.3.7.1 documentation - https://tmpl.at/3k82RHR
 toolbar = DebugToolbarExtension()   # Flask-DebugToolbar — Flask-DebugToolbar 0.12.dev0 documentation - https://tmpl.at/3Arw2LC
 
@@ -31,6 +33,7 @@ def create_app(test_config=None):
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         SQLALCHEMY_ECHO=True,
         DEBUG_TB_INTERCEPT_REDIRECTS=False,
+        # USE_SESSION_FOR_NEXT=True
     )
 
     if test_config is None:
@@ -40,6 +43,14 @@ def create_app(test_config=None):
 
     db.init_app(app)
     migrate.init_app(app, db)
+
+    # Flask-Login — Flask-Login 0.4.1 documentation - https://bit.ly/3zfPt98
+    login_manager.login_view = 'login_register'
+    login_manager.login_message = 'You need to login first!'
+    login_manager.login_message_category = 'warning'
+    login_manager.session_protection = 'strong'
+    login_manager.init_app(app)
+
     boostrap.init_app(app)
     toolbar.init_app(app)
 
@@ -47,5 +58,9 @@ def create_app(test_config=None):
         from . import models    # noqa: E402, F401
         from . import views     # noqa: E402, F401
         from . import commands  # noqa: E402, F401
+
+        @login_manager.user_loader
+        def load_user(user_id):
+            return models.User.query.get(int(user_id))
 
     return app
