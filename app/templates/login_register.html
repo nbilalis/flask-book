@@ -22,11 +22,11 @@
         <input type="hidden" value="{{ request.args.get('next') }}">
 
         <div class="form-group">
-			{{ login_form.username(class="form-control", placeholder="Username") }}
+			{{ login_form.username(class="form-control", placeholder="Username", autocomplete="username") }}
 		</div>
 
 		<div class="form-group">
-			{{ login_form.password(class="form-control", placeholder="Password") }}
+			{{ login_form.password(class="form-control", placeholder="Password", autocomplee="current-password") }}
 		</div>
 
 		<div class="form-group">
