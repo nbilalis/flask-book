@@ -138,7 +138,9 @@ def test():
     random_user = choice(users_alphabetically)
 
     post_count_sub = Post.query.filter(Post.author_id == User.id).with_entities(func.count(Post.id).label('post_count')).scalar_subquery()
-    last_post_per_user_sub = Post.query.with_entities(Post.author_id, func.max(Post.created_at).label('last_post_ts')).group_by(Post.author_id).subquery()
+    last_post_per_user_sub = Post.query.with_entities(
+        Post.author_id, func.max(Post.created_at).label('last_post_ts')
+    ).group_by(Post.author_id).subquery()
 
     context = {
         'first_user': User.query.first(),
@@ -153,8 +155,13 @@ def test():
         # Here be more dragons
         'user_with_post_count_1': User.query.join(Post).group_by(User).with_entities(User, func.count(Post.id).label('post_count')).all(),
         'user_with_post_count_2': User.query.with_entities(User, post_count_sub.label('post_count')).all(),
-        'users_with_their_latest_post_1': User.query.join(Post).with_entities(User, Post).filter(and_(User.id == last_post_per_user_sub.c.author_id, Post.created_at == last_post_per_user_sub.c.last_post_ts)).all(),
-        'users_with_their_latest_post_2': User.query.join(Post).join(last_post_per_user_sub, and_(User.id == last_post_per_user_sub.c.author_id, Post.created_at == last_post_per_user_sub.c.last_post_ts)).with_entities(User, Post).all(),
+        'users_with_their_latest_post_1': User.query.join(Post).with_entities(User, Post).filter(
+            and_(User.id == last_post_per_user_sub.c.author_id, Post.created_at == last_post_per_user_sub.c.last_post_ts)
+        ).all(),
+        'users_with_their_latest_post_2': User.query.join(Post).join(
+            last_post_per_user_sub,
+            and_(User.id == last_post_per_user_sub.c.author_id, Post.created_at == last_post_per_user_sub.c.last_post_ts)
+        ).with_entities(User, Post).all(),
     }
 
     return render_template('test.html', context=context)
