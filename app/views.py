@@ -36,27 +36,30 @@ def login_register():
     Flask-Security — Flask-Security 3.0.0 documentation - https://bit.ly/36HOdiK
     '''
 
+    # ``.is_submitted()` is trash.
+    # It just checks if there was a `POST`
+    login_form_submitted = request.form.get('submit_login')
+    register_form_submitted = request.form.get('submit_register')
+
     # Initialize the two forms.
     # We manually pass `request.form` or `None`,
     # because the two forms use fields with same names (should we change that?)
     # If they are not initialized this way, values posted from one form,
     # appears to the other one too.
-    login_form = LoginForm(request.form if request.form.get('submit_login') else None)
-    register_form = RegisterForm(request.form if request.form.get('submit_register') else None)
-
-    """ if not login_form.username.data and (username := request.cookies.get('username')):
-        login_form.username.data = username """
+    login_form = LoginForm(request.form if login_form_submitted else None)
+    register_form = RegisterForm(request.form if register_form_submitted else None)
 
     # If `LoginForm` was submitted and validated
-    if login_form.validate_on_submit():
+    if login_form_submitted and login_form.validate():
         # Get the user from the DB by their `username`
-        user = User.query.filter_by(
-            username=login_form.username.data,
-        ).one_or_none()
+        user = User.query.filter_by(username=login_form.username.data).one_or_none()
 
         # User not found or password hashes don't match
         if user is None or not check_password_hash(user.password, login_form.password.data):
             flash('Wrong username and / or password. Please try again!', category='danger')
+
+            # Error: Form responses must redirect to another location · Issue #12 · hotwired/turbo-rails - https://bit.ly/2V05S2A
+            return render_template('login_register.html', register_form=register_form, login_form=login_form), 422
         else:
             # Successfull login!
             login_user(user, remember=True)
@@ -65,25 +68,16 @@ def login_register():
 
             if next is not None and not is_safe_url(next, {request.host}):
                 return abort(400)
-
-            return redirect(next or url_for('profile', username=user.username))
+            else:
+                return redirect(next or url_for('profile', username=user.username))
 
     # If `RegisterForm` was submitted and validated
-    if register_form.validate_on_submit():
+    if register_form.is_submitted():
         # Check for existing user with same `username` or `email`
-        user = User.query.filter(
-            (User.username == register_form.username.data) | (User.email == register_form.email.data)
-        ).one_or_none()
+        u1 = User.query.filter_by(username=register_form.username.data).one_or_none()
+        u2 = User.query.filter_by(email=register_form.email.data).one_or_none()
 
-        # If `username` or `email` is already used
-        if user is not None:
-            if user.username == register_form.username.data:
-                register_form.username.data = None
-                register_form.username.errors.append('Username already taken!')
-            else:
-                register_form.email.data = None
-                register_form.email.errors.append('Someone has already registered with this e-mail address!')
-        else:
+        if register_form.validate() and (u1 or u2) is not None:   # Beware, order or expessions
             # Successfull registration!
 
             # Set a new `User` object
@@ -103,6 +97,16 @@ def login_register():
 
             # Redirect them to their profile page
             return redirect(url_for("profile", username=user.username))
+
+        # If `username` or `email` is already used
+        if u1 is not None:
+            register_form.username.errors.append('Username is taken!')
+
+        if u2 is not None:
+            register_form.email.errors.append('Someone has already registered with this e-mail address!')
+
+        # Error: Form responses must redirect to another location · Issue #12 · hotwired/turbo-rails - https://bit.ly/2V05S2A
+        return render_template('login_register.html', register_form=register_form, login_form=login_form), 422
 
     # First visit of vaidation errors
     return render_template('login_register.html', register_form=register_form, login_form=login_form)
@@ -124,6 +128,7 @@ def profile(username=None):
     user = User.query.filter_by(username=username).first_or_404()
 
     return render_template('profile.html', user=user)
+
 
 #
 # Here be dragons
