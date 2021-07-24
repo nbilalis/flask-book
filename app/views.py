@@ -15,6 +15,10 @@ from . import db
 from .models import User, Post
 from .forms import RegisterForm, LoginForm, PostForm
 
+import locale
+import timeago
+from babel.dates import format_datetime
+
 
 @app.route('/', methods=['GET', 'POST'])
 @login_required
@@ -142,6 +146,27 @@ def profile(username=None):
 
     return render_template('profile.html', user=user)
 
+#
+# Template filters
+# -------------------------------------------------- #
+
+
+@app.template_filter('timeago')
+def timeago_filter(value):
+    return timeago.format(value)
+
+
+@app.template_filter('currency')
+def currency_filter(value):
+    # locale.setlocale(locale.LC_ALL, 'el_GR')
+    return locale.currency(value, symbol=True, grouping=True)
+
+
+@app.template_filter('timestamp')
+def timetamp_filter(value):
+    # locale.setlocale(locale.LC_ALL, 'el_GR')
+    # return value.strftime("%a, %d %b %Y %H:%M:%S")
+    return format_datetime(value)
 
 #
 # Here be dragons
