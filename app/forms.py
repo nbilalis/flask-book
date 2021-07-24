@@ -17,3 +17,8 @@ class RegisterForm(FlaskForm):
     firstname = StringField('Firstname', description='Firstname', validators=[DataRequired()])
     lastname = StringField('Lastname', description='Lastname', validators=[DataRequired()])
     submit_register = SubmitField('Register')
+
+
+class PostForm(FlaskForm):
+    body = StringField('Body', description='Make a post…', validators=[DataRequired(), Length(min=3, max=160)])
+    submit_post = SubmitField('Post')

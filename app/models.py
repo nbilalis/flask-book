@@ -53,10 +53,8 @@ class User(UserMixin, db.Model):
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    title = db.Column(db.String(100), nullable=False)
-    body = db.Column(db.Text, nullable=False)
+    body = db.Column(db.String(160), nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), index=True, default=datetime.utcnow)     # default is handled by Python
-    updated_at = db.Column(db.DateTime(timezone=True), onupdate=func.now())
 
     author_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     author = db.relationship('User', backref='posts')     # , foreign_keys=[author_id]

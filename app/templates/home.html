@@ -6,7 +6,7 @@
 		<!-- profile brief -->
 		<div class="panel panel-default">
 			<div class="panel-body">
-				<h4>nicholaskajoh</h4>
+				<h4>{{ current_user.username }}</h4>
 				<p>I love to code!</p>
 			</div>
 		</div>
@@ -14,11 +14,12 @@
 	</div>
 	<div class="col-md-6">
 		<!-- post form -->
-		<form method="post" action="">
+		<form method="post">
+			{# {{ post_form.csrf_token }} #}
 			<div class="input-group">
-				<input class="form-control" type="text" name="content" placeholder="Make a post...">
+				{{ post_form.body(class="form-control", placeholder=post_form.body.description) }}
 				<span class="input-group-btn">
-					<button class="btn btn-success" type="submit" name="post">Post</button>
+					{{ post_form.submit_post(class="btn btn-success") }}
 				</span>
 			</div>
 		</form><hr>
@@ -26,17 +27,19 @@
 
 		<!-- feed -->
 		<div>
-			<!-- post -->
-			<div class="panel panel-default">
-				<div class="panel-body">
-					<p>Hello people! This is my first FaceClone post. Hurray!!!</p>
+			{% for post in latest_posts %}
+				<!-- post -->
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<p>{{ post.body }}</p>
+					</div>
+					<div class="panel-footer">
+						<span title="{{ post.created_at|timestamp }}">
+							posted <em>{{ post.created_at|timeago }}</em> by <em>{{ post.author.username }}</em></span>
+					</div>
 				</div>
-				<div class="panel-footer">
-					<span>posted 2017-5-27 20:45:01 by nicholaskajoh</span>
-					<span class="pull-right"><a class="text-danger" href="#">[delete]</a></span>
-				</div>
-			</div>
-			<!-- ./post -->
+				<!-- ./post -->
+			{% endfor %}
 		</div>
 		<!-- ./feed -->
 	</div>

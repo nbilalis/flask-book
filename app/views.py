@@ -6,21 +6,38 @@ from flask import render_template, redirect, url_for, flash, session, request, a
 from werkzeug.security import check_password_hash, generate_password_hash
 from is_safe_url import is_safe_url
 
-from sqlalchemy.orm import joinedload, load_only
-from sqlalchemy.sql import and_, or_, func
+from sqlalchemy.orm import load_only, joinedload, selectinload   # , subqueryload
 
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 
 from . import db
 
 from .models import User, Post
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, PostForm
+
+import locale
+import timeago
+from babel.dates import format_datetime
 
 
-@app.get('/')
+@app.route('/', methods=['GET', 'POST'])
 @login_required
 def home():
-    return render_template('home.html')
+    post_form = PostForm(csrf_enabled=False)
+
+    latest_posts = Post.query.options(selectinload(Post.author)).order_by(Post.created_at.desc()).slice(0, 30).all()
+    # foo = Post.query.order_by(Post.created_at.desc()).paginate(1, 10)
+
+    if post_form.validate_on_submit():
+        post = Post()
+        post_form.populate_obj(post)    # post.body = post_form.body.data
+        post.author = current_user
+        db.session.add(post)
+        db.session.commit()
+
+        return redirect(url_for('home'))
+
+    return render_template('home.html', post_form=post_form, latest_posts=latest_posts, timeago=timeago)
 
 
 @app.route('/login-register', methods=['GET', 'POST'])
@@ -129,6 +146,27 @@ def profile(username=None):
 
     return render_template('profile.html', user=user)
 
+#
+# Template filters
+# -------------------------------------------------- #
+
+
+@app.template_filter('timeago')
+def timeago_filter(value):
+    return timeago.format(value)
+
+
+@app.template_filter('currency')
+def currency_filter(value):
+    # locale.setlocale(locale.LC_ALL, 'el_GR')
+    return locale.currency(value, symbol=True, grouping=True)
+
+
+@app.template_filter('timestamp')
+def timetamp_filter(value):
+    # locale.setlocale(locale.LC_ALL, 'el_GR')
+    # return value.strftime("%a, %d %b %Y %H:%M:%S")
+    return format_datetime(value)
 
 #
 # Here be dragons
