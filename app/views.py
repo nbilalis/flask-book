@@ -6,21 +6,31 @@ from flask import render_template, redirect, url_for, flash, session, request, a
 from werkzeug.security import check_password_hash, generate_password_hash
 from is_safe_url import is_safe_url
 
-from sqlalchemy.orm import joinedload, load_only
-from sqlalchemy.sql import and_, or_, func
+from sqlalchemy.orm import load_only, joinedload, selectinload  #  , subqueryload
 
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 
 from . import db
 
 from .models import User, Post
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, PostForm
 
 
-@app.get('/')
+@app.route('/', methods=['GET', 'POST'])
 @login_required
 def home():
-    return render_template('home.html')
+    post_form = PostForm(csrf_enabled=False)
+
+    if post_form.validate_on_submit():
+        post = Post()
+        post_form.populate_obj(post)    # post.body = post_form.body.data
+        post.author = current_user
+        db.session.add(post)
+        db.session.commit()
+
+        return redirect(url_for('home'))
+
+    return render_template('home.html', post_form=post_form)
 
 
 @app.route('/login-register', methods=['GET', 'POST'])
