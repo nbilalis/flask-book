@@ -6,7 +6,7 @@ from flask import render_template, redirect, url_for, flash, session, request, a
 from werkzeug.security import check_password_hash, generate_password_hash
 from is_safe_url import is_safe_url
 
-from sqlalchemy.orm import load_only, joinedload, selectinload  #  , subqueryload
+from sqlalchemy.orm import load_only, joinedload, selectinload   # , subqueryload
 
 from flask_login import login_user, logout_user, login_required, current_user
 
@@ -21,6 +21,9 @@ from .forms import RegisterForm, LoginForm, PostForm
 def home():
     post_form = PostForm(csrf_enabled=False)
 
+    latest_posts = Post.query.options(selectinload(Post.author)).order_by(Post.created_at.desc()).slice(0, 30).all()
+    # foo = Post.query.order_by(Post.created_at.desc()).paginate(1, 10)
+
     if post_form.validate_on_submit():
         post = Post()
         post_form.populate_obj(post)    # post.body = post_form.body.data
@@ -30,7 +33,7 @@ def home():
 
         return redirect(url_for('home'))
 
-    return render_template('home.html', post_form=post_form)
+    return render_template('home.html', post_form=post_form, latest_posts=latest_posts, timeago=timeago)
 
 
 @app.route('/login-register', methods=['GET', 'POST'])
