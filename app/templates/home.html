@@ -15,7 +15,7 @@
 	<div class="col-md-6">
 		<!-- post form -->
 		<form method="post">
-			{# {{ post_form.csrf_token }} #}
+			{{ post_form.csrf_token }}
 			<div class="input-group">
 				{{ post_form.body(class="form-control", placeholder=post_form.body.description) }}
 				<span class="input-group-btn">

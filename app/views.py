@@ -7,6 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from is_safe_url import is_safe_url
 
 from sqlalchemy.orm import load_only, joinedload, selectinload   # , subqueryload
+from sqlalchemy.sql import and_, or_, func
 
 from flask_login import login_user, logout_user, login_required, current_user
 
@@ -23,7 +24,7 @@ from babel.dates import format_datetime
 @app.route('/', methods=['GET', 'POST'])
 @login_required
 def home():
-    post_form = PostForm(csrf_enabled=False)
+    post_form = PostForm()
 
     latest_posts = Post.query.options(selectinload(Post.author)).order_by(Post.created_at.desc()).slice(0, 30).all()
     # foo = Post.query.order_by(Post.created_at.desc()).paginate(1, 10)
