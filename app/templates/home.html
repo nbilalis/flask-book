@@ -27,17 +27,19 @@
 
 		<!-- feed -->
 		<div>
-			<!-- post -->
-			<div class="panel panel-default">
-				<div class="panel-body">
-					<p>Hello people! This is my first FaceClone post. Hurray!!!</p>
+			{% for post in latest_posts %}
+				<!-- post -->
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<p>{{ post.body }}</p>
+					</div>
+					<div class="panel-footer">
+						<span title="{{ post.created_at|timestamp }}">
+							posted <em>{{ post.created_at|timeago }}</em> by <em>{{ post.author.username }}</em></span>
+					</div>
 				</div>
-				<div class="panel-footer">
-					<span>posted 2017-5-27 20:45:01 by nicholaskajoh</span>
-					<span class="pull-right"><a class="text-danger" href="#">[delete]</a></span>
-				</div>
-			</div>
-			<!-- ./post -->
+				<!-- ./post -->
+			{% endfor %}
 		</div>
 		<!-- ./feed -->
 	</div>
