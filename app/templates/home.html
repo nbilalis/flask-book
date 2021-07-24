@@ -14,11 +14,12 @@
 	</div>
 	<div class="col-md-6">
 		<!-- post form -->
-		<form method="post" action="">
+		<form method="post">
+			{# {{ post_form.csrf_token }} #}
 			<div class="input-group">
-				<input class="form-control" type="text" name="content" placeholder="Make a post...">
+				{{ post_form.body(class="form-control", placeholder=post_form.body.description) }}
 				<span class="input-group-btn">
-					<button class="btn btn-success" type="submit" name="post">Post</button>
+					{{ post_form.submit_post(class="btn btn-success") }}
 				</span>
 			</div>
 		</form><hr>
