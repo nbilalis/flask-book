@@ -5,10 +5,12 @@ Flask-Bootstrap
 Flask-WTF
 Flask-Login
 
+Flask-DebugToolbar
+
 email-validator
 is-safe-url
-
-Flask-DebugToolbar
+babel
+timeago
 lorem
 
 flake8
