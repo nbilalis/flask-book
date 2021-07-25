@@ -44,48 +44,7 @@
 		<!-- ./feed -->
 	</div>
 	<div class="col-md-3">
-		<!-- friends -->
-		<div class="panel panel-default">
-			<div class="panel-body">
-				<h4>friends</h4>
-				<ul>
-					<li>
-						<a href="#">peterpan</a>
-						<a class="text-danger" href="#">[unfriend]</a>
-					</li>
-				</ul>
-			</div>
-		</div>
-		<!-- ./friends -->
-
-		<!-- friend requests -->
-		<div class="panel panel-default">
-			<div class="panel-body">
-				<h4>friend requests</h4>
-				<ul>
-					<li>
-						<a href="#">johndoe</a>
-						<a class="text-success" href="#">[accept]</a>
-						<a class="text-danger" href="#">[decline]</a>
-					</li>
-				</ul>
-			</div>
-		</div>
-		<!-- ./friend requests -->
-
-		<!-- add friend -->
-		<div class="panel panel-default">
-			<div class="panel-body">
-				<h4>add friend</h4>
-				<ul>
-					<li>
-						<a href="#">alberte</a>
-						<a href="#">[add]</a>
-					</li>
-				</ul>
-			</div>
-		</div>
-		<!-- ./add friend -->
+		{% include "_follow.html" %}
 	</div>
 </div>
 {% endblock main %}
