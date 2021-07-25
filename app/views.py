@@ -19,6 +19,7 @@ from .forms import RegisterForm, LoginForm, PostForm
 
 import locale
 import timeago
+from datetime import datetime
 from babel.dates import format_datetime
 
 
@@ -156,7 +157,12 @@ def profile(username=None):
 
 @app.template_filter('timeago')
 def timeago_filter(value):
-    return timeago.format(value)
+    '''
+    Filter to show relative time deltas
+    Date and Time — Babel 2.7.0 documentation - https://bit.ly/3iKciLj
+    '''
+    # return format_timedelta(value - datetime.utcnow(), add_direction=True)
+    return timeago.format(value, now=datetime.utcnow())
 
 
 @app.template_filter('currency')
