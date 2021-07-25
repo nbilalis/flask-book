@@ -8,6 +8,7 @@ from is_safe_url import is_safe_url
 
 from sqlalchemy.orm import load_only, joinedload, selectinload   # , subqueryload
 from sqlalchemy.sql import and_, or_, func
+from sqlalchemy.exc import SQLAlchemyError
 
 from flask_login import login_user, logout_user, login_required, current_user
 
@@ -27,18 +28,19 @@ def home():
     post_form = PostForm()
 
     latest_posts = Post.query.options(selectinload(Post.author)).order_by(Post.created_at.desc()).slice(0, 30).all()
-    # foo = Post.query.order_by(Post.created_at.desc()).paginate(1, 10)
 
-    if post_form.validate_on_submit():
-        post = Post()
-        post_form.populate_obj(post)    # post.body = post_form.body.data
-        post.author = current_user
-        db.session.add(post)
-        db.session.commit()
+    if post_form.validate_on_submit():      # POST
+        try:
+            post = Post(body=post_form.body.data, author=current_user)
+            db.session.add(post)
+            db.session.commit()
+        except SQLAlchemyError as e:
+            flash('Something went wrong! Please try again later or contact the administrator in case the error persists.', category='danger')
+            app.logger.error(e)
 
         return redirect(url_for('home'))
-
-    return render_template('home.html', post_form=post_form, latest_posts=latest_posts, timeago=timeago)
+    else:                                   # GET
+        return render_template('home.html', post_form=post_form, latest_posts=latest_posts)
 
 
 @app.route('/login-register', methods=['GET', 'POST'])
