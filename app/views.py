@@ -1,5 +1,3 @@
-from random import choice
-
 from flask import current_app as app
 from flask import render_template, redirect, url_for, flash, session, request, abort
 
@@ -181,11 +179,14 @@ def timetamp_filter(value):
 # Here be dragons
 # -------------------------------------------------- #
 
+
 @app.get('/test')
 def test():
     '''
     Hit the '/test' route to see some queries in action
     '''
+    from random import choice
+
     users_alphabetically = User.query.order_by(User.lastname, User.firstname).all()
     random_user = choice(users_alphabetically)
 
