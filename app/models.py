@@ -62,7 +62,7 @@ class Post(db.Model):
     # comments = db.relationship('Comment', backref='post', lazy=True)
 
     def __repr__(self):
-        return f'<Post {self.title=} {self.author_id=}>'
+        return f'<Post {self.body=} {self.author_id=}>'
 
 
 class Comment(db.Model):
