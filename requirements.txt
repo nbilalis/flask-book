@@ -9,6 +9,8 @@ Flask-DebugToolbar
 
 email-validator
 is-safe-url
+
+python-dateutil
 babel
 timeago
 lorem
@@ -16,5 +18,3 @@ lorem
 flake8
 autopep8
 python-dotenv
-
-pip
