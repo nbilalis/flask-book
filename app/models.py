@@ -6,6 +6,7 @@ from flask_login import UserMixin
 
 from datetime import datetime
 from sqlalchemy import event
+from sqlalchemy.orm import backref
 from sqlalchemy.sql import func
 from sqlalchemy.engine import Engine
 
@@ -57,7 +58,7 @@ class Post(db.Model):
     created_at = db.Column(db.DateTime(timezone=True), index=True, default=datetime.utcnow)     # default is handled by Python
 
     author_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
-    author = db.relationship('User', backref='posts', lazy='raise')     # , foreign_keys=[author_id]
+    author = db.relationship('User', backref=backref("posts", lazy="raise"), lazy='raise')     # , foreign_keys=[author_id]
 
     # comments = db.relationship('Comment', backref='post', lazy=True)
 

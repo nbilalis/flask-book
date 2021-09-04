@@ -53,6 +53,7 @@ def create_app(test_config=None):
         from . import filters   # noqa: E402, F401
 
     # Blueprints
+    main.bp.register_blueprint(api.bp)
     app.register_blueprint(main.bp)
 
     # Flask-Login setup
