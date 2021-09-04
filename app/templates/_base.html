@@ -14,13 +14,13 @@
 	<nav class="navbar navbar-default">
 		<div class="container-fluid">
 			<div class="navbar-header">
-				<a class="navbar-brand" href="{{ url_for('home') }}">Flask-Book</a>
+				<a class="navbar-brand" href="{{ url_for('main.home') }}">Flask-Book</a>
 			</div>
 			{% if current_user.is_authenticated %}
 				<ul class="nav navbar-nav navbar-right">
-					<li><a href="{{ url_for('home') }}">Home</a></li>
-					<li><a href="{{ url_for('profile', username=current_user.username) }}">Profile</a></li>
-					<li><a href="{{ url_for('logout') }}">Logout</a></li>
+					<li><a href="{{ url_for('main.home') }}">Home</a></li>
+					<li><a href="{{ url_for('main.profile', username=current_user.username) }}">Profile</a></li>
+					<li><a href="{{ url_for('main.logout') }}">Logout</a></li>
 				</ul>
 			{% endif %}
 		</div>

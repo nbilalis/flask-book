@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
+from flask_marshmallow import Marshmallow
 
 from flask_debugtoolbar import DebugToolbarExtension
 
@@ -15,6 +16,7 @@ migrate = Migrate()                 # Flask-Migrate — Flask-Migrate documentat
 login_manager = LoginManager()      # Flask-Login — Flask-Login 0.4.1 documentation - https://bit.ly/2Uo7fba
 boostrap = Bootstrap()              # Flask-Bootstrap — Flask-Bootstrap 3.3.7.1 documentation - https://tmpl.at/3k82RHR
 toolbar = DebugToolbarExtension()   # Flask-DebugToolbar — Flask-DebugToolbar 0.12.dev0 documentation - https://tmpl.at/3Arw2LC
+ma = Marshmallow()                  # Flask-Marshmallow: Flask + marshmallow for beautiful APIs — Flask-Marshmallow 0.14.0 documentation - https://bit.ly/2WG4jaY
 
 
 def create_app(test_config=None):
@@ -41,26 +43,36 @@ def create_app(test_config=None):
     else:
         app.config.from_mapping(test_config)
 
-    db.init_app(app)
-    migrate.init_app(app, db)
+    # Imports
+    from . import main
+    from . import api
+    from . import models
 
-    # Flask-Login — Flask-Login 0.4.1 documentation - https://bit.ly/3zfPt98
-    login_manager.login_view = 'login_register'
+    with app.app_context():
+        from . import commands  # noqa: E402, F401
+        from . import filters   # noqa: E402, F401
+
+    # Blueprints
+    main.bp.register_blueprint(api.bp)
+    app.register_blueprint(main.bp)
+
+    # Flask-Login setup
+    # Flask-Login 0.4.1 documentation - https://bit.ly/3zfPt98
+    login_manager.login_view = 'main.login_register'
     login_manager.login_message = 'You need to login first!'
     login_manager.login_message_category = 'warning'
     login_manager.session_protection = 'strong'
-    login_manager.init_app(app)
 
+    @login_manager.user_loader
+    def load_user(user_id):
+        return models.User.query.get(int(user_id))
+
+    # Package setup
+    db.init_app(app)
+    migrate.init_app(app, db)
     boostrap.init_app(app)
     toolbar.init_app(app)
-
-    with app.app_context():
-        from . import models    # noqa: E402, F401
-        from . import views     # noqa: E402, F401
-        from . import commands  # noqa: E402, F401
-
-        @login_manager.user_loader
-        def load_user(user_id):
-            return models.User.query.get(int(user_id))
+    login_manager.init_app(app)
+    ma.init_app(app)
 
     return app

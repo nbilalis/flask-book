@@ -64,7 +64,7 @@
 
 	{# {% import "bootstrap/wtf.html" as wtf %}
 	{{ wtf.quick_form(register_form) }} #}
-	<form action="{{ url_for('login_register') }}" method="POST" class="needs-validation" novalidate>
+	<form action="{{ url_for('main.login_register') }}" method="POST" class="needs-validation" novalidate>
 		{{ register_form.csrf_token }}
 
 		{% for field in register_form %}
