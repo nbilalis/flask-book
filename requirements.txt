@@ -4,6 +4,8 @@ Flask-Migrate
 Flask-Bootstrap
 Flask-WTF
 Flask-Login
+Flask-Marshmallow
+Marshmallow-SQLAlchemy
 
 Flask-DebugToolbar
 

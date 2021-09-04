@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
+from flask_marshmallow import Marshmallow
 
 from flask_debugtoolbar import DebugToolbarExtension
 
@@ -15,6 +16,7 @@ migrate = Migrate()                 # Flask-Migrate — Flask-Migrate documentat
 login_manager = LoginManager()      # Flask-Login — Flask-Login 0.4.1 documentation - https://bit.ly/2Uo7fba
 boostrap = Bootstrap()              # Flask-Bootstrap — Flask-Bootstrap 3.3.7.1 documentation - https://tmpl.at/3k82RHR
 toolbar = DebugToolbarExtension()   # Flask-DebugToolbar — Flask-DebugToolbar 0.12.dev0 documentation - https://tmpl.at/3Arw2LC
+ma = Marshmallow()                  # Flask-Marshmallow: Flask + marshmallow for beautiful APIs — Flask-Marshmallow 0.14.0 documentation - https://bit.ly/2WG4jaY
 
 
 def create_app(test_config=None):
@@ -70,5 +72,6 @@ def create_app(test_config=None):
     boostrap.init_app(app)
     toolbar.init_app(app)
     login_manager.init_app(app)
+    ma.init_app(app)
 
     return app
