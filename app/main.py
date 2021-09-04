@@ -1,5 +1,5 @@
 from flask import current_app as app
-from flask import render_template, redirect, url_for, flash, session, request, abort
+from flask import Blueprint, render_template, redirect, url_for, flash, session, request, abort
 
 from werkzeug.security import check_password_hash, generate_password_hash
 from is_safe_url import is_safe_url
@@ -15,14 +15,10 @@ from . import db
 from .models import User, Post
 from .forms import RegisterForm, LoginForm, PostForm
 
-import locale
-import timeago
-from datetime import datetime
-from dateutil import tz
-from babel.dates import format_datetime
+bp = Blueprint('main', __name__, url_prefix='/')
 
 
-@app.route('/', methods=['GET', 'POST'])
+@bp.route('/', methods=['GET', 'POST'])
 @login_required
 def home():
     post_form = PostForm()
@@ -38,12 +34,12 @@ def home():
             flash('Something went wrong! Please try again later or contact the administrator in case the error persists.', category='danger')
             app.logger.error(e)
 
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
     else:                                   # GET
         return render_template('home.html', post_form=post_form, latest_posts=latest_posts)
 
 
-@app.route('/login-register', methods=['GET', 'POST'])
+@bp.route('/login-register', methods=['GET', 'POST'])
 def login_register():
     '''
     Handle Login and Register
@@ -89,7 +85,7 @@ def login_register():
             if next is not None and not is_safe_url(next, {request.host}):
                 return abort(400)
             else:
-                return redirect(next or url_for('profile', username=user.username))
+                return redirect(next or url_for('main.profile', username=user.username))
 
     # If `RegisterForm` was submitted and validated
     if register_form.is_submitted():
@@ -116,7 +112,7 @@ def login_register():
             login_user(user, remember=True)
 
             # Redirect them to their profile page
-            return redirect(url_for("profile", username=user.username))
+            return redirect(url_for('main.profile', username=user.username))
 
         # If `username` or `email` is already used
         if u1 is not None:
@@ -132,17 +128,17 @@ def login_register():
     return render_template('login_register.html', register_form=register_form, login_form=login_form)
 
 
-@app.get('/logout')
+@bp.get('/logout')
 def logout():
     '''
     Logout the user
     '''
     logout_user()
-    return redirect(url_for('login_register'))
+    return redirect(url_for('main.login_register'))
 
 
-@app.get('/profile/')
-@app.get('/profile/<username>')
+@bp.get('/profile/')
+@bp.get('/profile/<username>')
 @login_required
 def profile(username=None):
     user = User.query.filter_by(username=username).first_or_404()
@@ -150,46 +146,11 @@ def profile(username=None):
     return render_template('profile.html', user=user)
 
 #
-# Template filters
-# -------------------------------------------------- #
-
-
-@app.template_filter('timeago')
-def timeago_filter(value):
-    '''
-    Filter to show relative time deltas
-    Date and Time — Babel 2.7.0 documentation - https://bit.ly/3iKciLj
-    '''
-    # return format_timedelta(value - datetime.utcnow(), add_direction=True)
-    return timeago.format(value, now=datetime.utcnow())
-
-
-@app.template_filter('currency')
-def currency_filter(value):
-    # locale.setlocale(locale.LC_ALL, 'el_GR')
-    return locale.currency(value, symbol=True, grouping=True)
-
-
-@app.template_filter('timestamp')
-def timetamp_filter(value):
-    # locale.setlocale(locale.LC_ALL, 'el_GR')
-    # return value.strftime("%a, %d %b %Y %H:%M:%S")
-
-    # python - Convert UTC datetime string to local datetime - Stack Overflow - https://bit.ly/3BGUHwn
-    from_zone = tz.tzutc()
-    to_zone = tz.tzlocal()
-
-    utc = value.replace(tzinfo=from_zone)
-    local = utc.astimezone(to_zone)
-
-    return format_datetime(local)
-
-#
 # Here be dragons
 # -------------------------------------------------- #
 
 
-@app.get('/test')
+@bp.get('/test')
 def test():
     '''
     Hit the '/test' route to see some queries in action

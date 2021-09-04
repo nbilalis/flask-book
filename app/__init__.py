@@ -41,26 +41,34 @@ def create_app(test_config=None):
     else:
         app.config.from_mapping(test_config)
 
-    db.init_app(app)
-    migrate.init_app(app, db)
+    # Imports
+    from . import main
+    from . import api
+    from . import models
 
-    # Flask-Login — Flask-Login 0.4.1 documentation - https://bit.ly/3zfPt98
-    login_manager.login_view = 'login_register'
+    with app.app_context():
+        from . import commands  # noqa: E402, F401
+        from . import filters   # noqa: E402, F401
+
+    # Blueprints
+    app.register_blueprint(main.bp)
+
+    # Flask-Login setup
+    # Flask-Login 0.4.1 documentation - https://bit.ly/3zfPt98
+    login_manager.login_view = 'main.login_register'
     login_manager.login_message = 'You need to login first!'
     login_manager.login_message_category = 'warning'
     login_manager.session_protection = 'strong'
-    login_manager.init_app(app)
 
+    @login_manager.user_loader
+    def load_user(user_id):
+        return models.User.query.get(int(user_id))
+
+    # Package setup
+    db.init_app(app)
+    migrate.init_app(app, db)
     boostrap.init_app(app)
     toolbar.init_app(app)
-
-    with app.app_context():
-        from . import models    # noqa: E402, F401
-        from . import views     # noqa: E402, F401
-        from . import commands  # noqa: E402, F401
-
-        @login_manager.user_loader
-        def load_user(user_id):
-            return models.User.query.get(int(user_id))
+    login_manager.init_app(app)
 
     return app
