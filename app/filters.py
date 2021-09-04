@@ -24,7 +24,7 @@ def currency_filter(value):
 
 
 @app.template_filter('timestamp')
-def timetamp_filter(value):
+def timestamp_filter(value):
     # locale.setlocale(locale.LC_ALL, 'el_GR')
     # return value.strftime("%a, %d %b %Y %H:%M:%S")
 
@@ -35,4 +35,4 @@ def timetamp_filter(value):
     utc = value.replace(tzinfo=from_zone)
     local = utc.astimezone(to_zone)
 
-    return format_datetime(local)
+    return format_datetime(local, locale='en_US')
