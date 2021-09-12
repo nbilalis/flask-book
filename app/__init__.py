@@ -33,7 +33,7 @@ def create_app(test_config=None):
         SQLALCHEMY_DATABASE_URI='sqlite:///data/flask-book.db',                                 # 3 slashes = relative path
         # SQLALCHEMY_DATABASE_URI=f"sqlite:////{path.join(BASE_PATH, 'data/flask-book.db')}",   # 4 slashes = absolute path
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
-        SQLALCHEMY_ECHO=True,
+        SQLALCHEMY_ECHO=environ.get('SQLALCHEMY_ECHO', 'True').lower() in ('true', '1'),
         DEBUG_TB_INTERCEPT_REDIRECTS=False,
         # USE_SESSION_FOR_NEXT=True
     )
