@@ -1,0 +1,15 @@
+# Dockerfile reference | Docker Documentation - https://tmpl.at/3hrGpHv
+
+**/__pycache__
+
+_assets
+_setup_venv.*
+
+migrations
+
+Dockerfile
+LICENSE
+README.md
+requirements.txt
+
+passenger_wsgi.py
